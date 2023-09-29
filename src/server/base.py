@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from sys import platform
 import socket
 import threading
+from multiprocessing.pool import ThreadPool
 
 
 class ServerBase(ABC):
@@ -10,6 +11,7 @@ class ServerBase(ABC):
         self._socket = None
         self.client_shell = None
         self._listen_thread = None
+        self._connections_thread_pool = None
 
     def start(self, address='127.0.0.1', port=22, timeout=1):
         if not self._is_running.is_set():
@@ -27,6 +29,8 @@ class ServerBase(ABC):
             self._listen_thread = threading.Thread(target=self._listen)
             self._listen_thread.start()
 
+            self._connections_thread_pool = ThreadPool()
+
     def stop(self):
         if self._is_running.is_set():
             self._is_running.clear()
@@ -38,12 +42,13 @@ class ServerBase(ABC):
             try:
                 self._socket.listen()
                 client, addr = self._socket.accept()
-                self.connection_function(client)
+                # use apply() to debug errors
+                self._connections_thread_pool.apply_async(self.connection_function, args=(client, addr))
             except socket.timeout:
                 pass
 
     @abstractmethod
-    def connection_function(self, client):
+    def connection_function(self, client, addr):
         """
         This will let us create derived classes of ServerBase that specify their own way of dealing with the connection
         that is being made. For example, later on in our SSH server class, we will connect the SSH Transport objects to

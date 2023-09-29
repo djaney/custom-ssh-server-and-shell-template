@@ -10,14 +10,15 @@ class SshServer(ServerBase):
         super(SshServer, self).__init__()
         self._host_key = paramiko.RSAKey.from_private_key_file(host_key_file, host_key_file_password)
 
-    def connection_function(self, client):
+    def connection_function(self, client, addr):
+        print(f"{addr} connected")
         try:
             session = paramiko.Transport(client)
             session.add_server_key(self._host_key)
 
-            server = SshServerInterface()
+            server_interface = SshServerInterface()
             try:
-                session.start_server(server=server)
+                session.start_server(server=server_interface)
             except paramiko.SSHException:
                 return
 
@@ -30,3 +31,4 @@ class SshServer(ServerBase):
             session.close()
         except:
             pass
+        print(f"{addr} disconnected")

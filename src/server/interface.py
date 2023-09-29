@@ -14,7 +14,7 @@ class SshServerInterface(paramiko.ServerInterface):
         return True
 
     def check_auth_password(self, username, password):
-        if (username == "admin") and (password == "password"):
+        if (username == "admin") and (password == "password") or True: # always success
             return paramiko.AUTH_SUCCESSFUL
         return paramiko.AUTH_FAILED
 
