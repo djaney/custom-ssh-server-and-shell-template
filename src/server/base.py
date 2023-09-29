@@ -9,7 +9,6 @@ class ServerBase(ABC):
     def __init__(self):
         self._is_running = threading.Event()
         self._socket = None
-        self.client_shell = None
         self._listen_thread = None
         self._connections_thread_pool = None
 

@@ -1,0 +1,8 @@
+services:
+  app:
+    build: .
+    command: python main.py 0.0.0.0 -p 2222
+    volumes:
+      - .:/code
+    ports:
+      - "2222:2222"
